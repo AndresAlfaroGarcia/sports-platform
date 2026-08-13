@@ -1,0 +1,15 @@
+openapi: 3.0.3
+
+info:
+  title: Athlete API
+  version: 1.0.0
+
+paths:
+
+  /api/v1/athletes:
+
+    get:
+      summary: Get athletes
+
+    post:
+      summary: Create athlete
