@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: athlete-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/athlete_db
+    username: athlete_user
+    password: athlete_password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG

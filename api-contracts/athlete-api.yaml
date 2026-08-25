@@ -6,10 +6,247 @@ info:
 
 paths:
 
+  /api/v1/athletes/{athleteId}:
+
+
+    get:
+      summary: Get athlete by id
+      operationId: getAthleteById
+
+      parameters:
+        - name: athleteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Athlete found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AthleteResponse'
+
+        '404':
+          description: Athlete not found
+
+    put:
+      summary: Update athlete
+      operationId: updateAthlete
+
+      parameters:
+        - name: athleteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAthleteRequest'
+
+      responses:
+        '200':
+          description: Athlete updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AthleteResponse'
+
+        '400':
+          description: Invalid request
+
+        '404':
+          description: Athlete not found
+
+        '409':
+          description: Athlete already exists
+
+    delete:
+      summary: Deactivate athlete
+      operationId: deactivateAthlete
+
+      parameters:
+        - name: athleteId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '204':
+          description: Athlete deactivated
+
+        '404':
+          description: Athlete not found
+
   /api/v1/athletes:
 
     get:
       summary: Get athletes
+      operationId: getAthletes
+
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+
+      responses:
+        '200':
+          description: List of athletes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AthleteResponse'
 
     post:
       summary: Create athlete
+      operationId: createAthlete
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAthleteRequest'
+
+      responses:
+        '201':
+          description: Athlete created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AthleteResponse'
+
+        '400':
+          description: Invalid request
+
+        '409':
+          description: Athlete already exists
+
+components:
+
+  schemas:
+
+    CreateAthleteRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - birthDate
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+          example: Andres
+
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Alfaro
+
+        email:
+          type: string
+          format: email
+          example: andres@example.com
+
+        birthDate:
+          type: string
+          format: date
+          example: '1985-05-20'
+
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+
+    UpdateAthleteRequest:
+      type: object
+
+      required:
+        - firstName
+        - lastName
+        - email
+        - birthDate
+
+      properties:
+
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 100
+
+        email:
+          type: string
+          format: email
+
+        birthDate:
+          type: string
+          format: date
+
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+
+    AthleteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        firstName:
+          type: string
+
+        lastName:
+          type: string
+
+        email:
+          type: string
+          format: email
+
+        birthDate:
+          type: string
+          format: date
+
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+
+        active:
+          type: boolean
