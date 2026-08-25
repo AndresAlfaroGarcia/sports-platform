@@ -3,6 +3,7 @@ package com.sportsplatform.athlete.infrastructure.adapter.out.persistence;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.model.Athlete;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class AthletePersistenceAdapter implements AthleteRepositoryPort {
@@ -29,9 +30,9 @@ public class AthletePersistenceAdapter implements AthleteRepositoryPort {
     }
 
     @Override
-    public Athlete get(UUID id) {
+    public Optional<Athlete> findById(UUID athleteId) {
 
-        AthleteEntity obj = repository.getReferenceById(id);
-
-        return mapper.toDomain(obj);
-    }}
+        return repository.findById(athleteId)
+                .map(mapper::toDomain); //Reference to method
+    }
+}

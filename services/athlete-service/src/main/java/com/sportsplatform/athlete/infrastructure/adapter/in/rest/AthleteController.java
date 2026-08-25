@@ -1,9 +1,8 @@
 package com.sportsplatform.athlete.infrastructure.adapter.in.rest;
 
-import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
 import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
+import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
 import com.sportsplatform.athlete.domain.model.Athlete;
-import com.sportsplatform.athlete.domain.model.Gender;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.CreateAthleteRequest;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper.AthleteRestMapper;
@@ -18,13 +17,16 @@ import java.util.UUID;
 public class AthleteController {
 
     private final CreateAthleteUseCase createAthleteUseCase;
+    private final GetAthleteByIdUseCase getAthleteByIdUseCase;
     private final AthleteRestMapper mapper;
 
     public AthleteController(
             CreateAthleteUseCase createAthleteUseCase,
+            GetAthleteByIdUseCase getAthleteByIdUseCase,
             AthleteRestMapper mapper) {
 
         this.createAthleteUseCase = createAthleteUseCase;
+        this.getAthleteByIdUseCase = getAthleteByIdUseCase;
         this.mapper = mapper;
     }
 
@@ -40,10 +42,11 @@ public class AthleteController {
         return mapper.toResponse(athlete);
     }
 
-    @GetMapping(value="{id}", produces = { "application/json", "application/xml" })
-    public AthleteResponse get(@PathVariable UUID id) {
+    @GetMapping(value="/{athleteId}", produces = { "application/json", "application/xml" })
+    public AthleteResponse getById(@PathVariable UUID athleteId) {
 
-        Athlete athlete = createAthleteUseCase.get(id);
+        Athlete athlete = getAthleteByIdUseCase.getById(athleteId);
 
         return mapper.toResponse(athlete);
-    }}
+    }
+}

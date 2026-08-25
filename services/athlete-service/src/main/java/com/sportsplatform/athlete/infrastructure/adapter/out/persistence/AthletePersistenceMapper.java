@@ -1,9 +1,7 @@
 package com.sportsplatform.athlete.infrastructure.adapter.out.persistence;
 
 import com.sportsplatform.athlete.domain.model.Athlete;
-import org.mapstruct.Mapper;
 
-//@Mapper(componentModel = "spring")
 public interface AthletePersistenceMapper {
 
     //Any class implements this interface inherit this implementation.

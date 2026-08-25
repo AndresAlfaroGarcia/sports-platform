@@ -1,6 +1,5 @@
 package com.sportsplatform.athlete.infrastructure.config;
 
-import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.application.service.AthleteApplicationService;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper.AthleteRestMapper;
@@ -27,14 +26,14 @@ public class AthleteConfiguration {
     }
 
     @Bean
-    CreateAthleteUseCase createAthleteUseCase(
-            AthleteRepositoryPort repositoryPort) {
-
-        return new AthleteApplicationService(repositoryPort);
+    public AthleteRestMapper athleteRestMapper() {
+        return new AthleteRestMapper();
     }
 
     @Bean
-    public AthleteRestMapper athleteRestMapper() {
-        return new AthleteRestMapper();
+    public AthleteApplicationService athleteApplicationService(
+            AthleteRepositoryPort repositoryPort) {
+
+        return new AthleteApplicationService(repositoryPort);
     }
 }
