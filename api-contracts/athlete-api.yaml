@@ -8,19 +8,17 @@ paths:
 
   /api/v1/athletes/{athleteId}:
 
+    parameters:
+      - name: athleteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
 
     get:
       summary: Get athlete by id
       operationId: getAthleteById
-
-      parameters:
-        - name: athleteId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-
       responses:
         '200':
           description: Athlete found
@@ -35,15 +33,6 @@ paths:
     put:
       summary: Update athlete
       operationId: updateAthlete
-
-      parameters:
-        - name: athleteId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-
       requestBody:
         required: true
         content:
@@ -71,15 +60,6 @@ paths:
     delete:
       summary: Deactivate athlete
       operationId: deactivateAthlete
-
-      parameters:
-        - name: athleteId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-
       responses:
         '204':
           description: Athlete deactivated
@@ -113,14 +93,12 @@ paths:
 
       responses:
         '200':
-          description: List of athletes
+          description: Paginated list of athletes
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AthleteResponse'
-
+                $ref: '#/components/schemas/PagedAthleteResponse'
+    
     post:
       summary: Create athlete
       operationId: createAthlete
@@ -250,3 +228,29 @@ components:
 
         active:
           type: boolean
+
+    PagedAthleteResponse:
+      type: object
+      properties:
+
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AthleteResponse'
+
+        page:
+          type: integer
+          example: 0
+
+        size:
+          type: integer
+          example: 20
+
+        totalElements:
+          type: integer
+          format: int64
+          example: 125
+
+        totalPages:
+          type: integer
+          example: 7

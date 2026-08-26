@@ -3,10 +3,7 @@ package com.sportsplatform.athlete.infrastructure.adapter.in.rest;
 import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
-import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthletesUseCase;
-import com.sportsplatform.athlete.application.port.in.UpdateAthleteUseCase;
+import com.sportsplatform.athlete.application.port.in.*;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.CreateAthleteRequest;
@@ -27,6 +24,7 @@ public class AthleteController {
     private final GetAthleteByIdUseCase getAthleteByIdUseCase;
     private final GetAthletesUseCase getAthletesUseCase;
     private final UpdateAthleteUseCase updateAthleteUseCase;
+    private final DeactivateAthleteUseCase deactivateAthleteUseCase;
     private final AthleteRestMapper mapper;
 
     public AthleteController(
@@ -34,12 +32,14 @@ public class AthleteController {
             GetAthleteByIdUseCase getAthleteByIdUseCase,
             GetAthletesUseCase getAthletesUseCase,
             UpdateAthleteUseCase updateAthleteUseCase,
+            DeactivateAthleteUseCase deactivateAthleteUseCase,
             AthleteRestMapper mapper) {
 
         this.createAthleteUseCase = createAthleteUseCase;
         this.getAthleteByIdUseCase = getAthleteByIdUseCase;
         this.getAthletesUseCase = getAthletesUseCase;
         this.updateAthleteUseCase = updateAthleteUseCase;
+        this.deactivateAthleteUseCase = deactivateAthleteUseCase;
         this.mapper = mapper;
     }
 
@@ -88,5 +88,12 @@ public class AthleteController {
                 updateAthleteUseCase.update(athleteId, command);
 
         return mapper.toResponse(athlete);
+    }
+
+    @DeleteMapping("/{athleteId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deactivate(@PathVariable UUID athleteId) {
+
+        deactivateAthleteUseCase.deactivate(athleteId);
     }
 }

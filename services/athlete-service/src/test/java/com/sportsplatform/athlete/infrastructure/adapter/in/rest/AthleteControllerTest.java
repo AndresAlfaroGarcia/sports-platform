@@ -3,10 +3,7 @@ package com.sportsplatform.athlete.infrastructure.adapter.in.rest;
 import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
-import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthletesUseCase;
-import com.sportsplatform.athlete.application.port.in.UpdateAthleteUseCase;
+import com.sportsplatform.athlete.application.port.in.*;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.domain.model.Gender;
@@ -25,12 +22,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @WebMvcTest(AthleteController.class)
 class AthleteControllerTest {
@@ -52,6 +51,9 @@ class AthleteControllerTest {
 
     @MockitoBean
     private UpdateAthleteUseCase updateAthleteUseCase;
+
+    @MockitoBean
+    private DeactivateAthleteUseCase deactivateAthleteUseCase;
 
     @Test
     void shouldGetAthleteById() throws Exception {
@@ -232,5 +234,18 @@ class AthleteControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Andres"))
                 .andExpect(jsonPath("$.email").value("new@example.com"))
                 .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    void shouldDeactivateAthlete() throws Exception {
+
+        UUID athleteId = UUID.randomUUID();
+
+        mockMvc.perform(
+                        delete("/api/v1/athletes/{athleteId}", athleteId)
+                )
+                .andExpect(status().isNoContent());
+
+        verify(deactivateAthleteUseCase).deactivate(athleteId);
     }
 }

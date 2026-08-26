@@ -207,4 +207,50 @@ class AthleteApplicationServiceTest {
         verify(repository, times(1)).findById(athleteId);
         verify(repository, never()).save(any(Athlete.class));
     }
+
+    @Test
+    void shouldDeactivateAthlete() {
+
+        UUID athleteId = UUID.randomUUID();
+
+        Athlete athlete = Athlete.restore(
+                athleteId,
+                "Andres",
+                "Alfaro",
+                "andres@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE,
+                true
+        );
+
+        when(repository.findById(athleteId))
+                .thenReturn(Optional.of(athlete));
+
+        when(repository.save(any(Athlete.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.deactivate(athleteId);
+
+        assertFalse(athlete.isActive());
+
+        verify(repository).findById(athleteId);
+        verify(repository).save(athlete);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeactivatingNonExistingAthlete() {
+
+        UUID athleteId = UUID.randomUUID();
+
+        when(repository.findById(athleteId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                AthleteNotFoundException.class,
+                () -> service.deactivate(athleteId)
+        );
+
+        verify(repository).findById(athleteId);
+        verify(repository, never()).save(any(Athlete.class));
+    }
 }

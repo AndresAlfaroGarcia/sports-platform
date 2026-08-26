@@ -4,10 +4,7 @@ import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
 import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
-import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
-import com.sportsplatform.athlete.application.port.in.GetAthletesUseCase;
-import com.sportsplatform.athlete.application.port.in.UpdateAthleteUseCase;
+import com.sportsplatform.athlete.application.port.in.*;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
@@ -17,7 +14,8 @@ import java.util.UUID;
 public class AthleteApplicationService implements CreateAthleteUseCase,
                                                     GetAthleteByIdUseCase,
                                                     GetAthletesUseCase,
-                                                    UpdateAthleteUseCase {
+                                                    UpdateAthleteUseCase,
+                                                    DeactivateAthleteUseCase {
 
     private final AthleteRepositoryPort athleteRepositoryPort;
 
@@ -70,5 +68,17 @@ public class AthleteApplicationService implements CreateAthleteUseCase,
         );
 
         return athleteRepositoryPort.save(athlete);
+    }
+
+    @Override
+    public void deactivate(UUID athleteId) {
+
+        Athlete athlete = athleteRepositoryPort.findById(athleteId)
+                .orElseThrow(() ->
+                        new AthleteNotFoundException(athleteId));
+
+        athlete.deactivate();
+
+        athleteRepositoryPort.save(athlete);
     }
 }
