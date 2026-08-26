@@ -1,11 +1,13 @@
 package com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
+import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.CreateAthleteRequest;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.PagedAthleteResponse;
+import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.UpdateAthleteRequest;
 
 import java.util.List;
 
@@ -46,6 +48,17 @@ public class AthleteRestMapper {
                 pageResult.size(),
                 pageResult.totalElements(),
                 pageResult.totalPages()
+        );
+    }
+
+    public UpdateAthleteCommand toCommand(UpdateAthleteRequest request) {
+
+        return new UpdateAthleteCommand(
+                request.firstName(),
+                request.lastName(),
+                request.email(),
+                request.birthDate(),
+                request.gender()
         );
     }
 }

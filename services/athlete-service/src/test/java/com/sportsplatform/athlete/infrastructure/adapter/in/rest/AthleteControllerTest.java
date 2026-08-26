@@ -1,19 +1,23 @@
 package com.sportsplatform.athlete.infrastructure.adapter.in.rest;
 
+import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
 import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
 import com.sportsplatform.athlete.application.port.in.GetAthletesUseCase;
+import com.sportsplatform.athlete.application.port.in.UpdateAthleteUseCase;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.domain.model.Gender;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.PagedAthleteResponse;
+import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.UpdateAthleteRequest;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper.AthleteRestMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,6 +26,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,6 +49,9 @@ class AthleteControllerTest {
 
     @MockitoBean
     private GetAthletesUseCase getAthletesUseCase;
+
+    @MockitoBean
+    private UpdateAthleteUseCase updateAthleteUseCase;
 
     @Test
     void shouldGetAthleteById() throws Exception {
@@ -161,5 +170,67 @@ class AthleteControllerTest {
                 .andExpect(jsonPath("$.size").value(20))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    void shouldUpdateAthlete() throws Exception {
+
+        UUID athleteId = UUID.randomUUID();
+
+        UpdateAthleteCommand command = new UpdateAthleteCommand(
+                "Andres",
+                "Alfaro",
+                "new@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE
+        );
+
+        Athlete updatedAthlete = Athlete.restore(
+                athleteId,
+                "Andres",
+                "Alfaro",
+                "new@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE,
+                true
+        );
+
+        AthleteResponse response = new AthleteResponse(
+                athleteId,
+                "Andres",
+                "Alfaro",
+                "new@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE,
+                true
+        );
+
+        when(mapper.toCommand(any(UpdateAthleteRequest.class)))
+                .thenReturn(command);
+
+        when(updateAthleteUseCase.update(athleteId, command))
+                .thenReturn(updatedAthlete);
+
+        when(mapper.toResponse(updatedAthlete))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        put("/api/v1/athletes/{athleteId}", athleteId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                            {
+                              "firstName": "Andres",
+                              "lastName": "Alfaro",
+                              "email": "new@example.com",
+                              "birthDate": "1985-05-20",
+                              "gender": "MALE"
+                            }
+                            """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(athleteId.toString()))
+                .andExpect(jsonPath("$.firstName").value("Andres"))
+                .andExpect(jsonPath("$.email").value("new@example.com"))
+                .andExpect(jsonPath("$.active").value(true));
     }
 }

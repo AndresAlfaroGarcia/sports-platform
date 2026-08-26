@@ -1,6 +1,7 @@
 package com.sportsplatform.athlete.application.service;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
+import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
@@ -142,5 +143,68 @@ class AthleteApplicationServiceTest {
 
         verify(repository, times(1))
                 .findAll(query);
+    }
+
+    @Test
+    void shouldUpdateAthlete() {
+
+        UUID athleteId = UUID.randomUUID();
+
+        Athlete existingAthlete = Athlete.restore(
+                athleteId,
+                "Andres",
+                "Alfaro",
+                "old@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE,
+                true
+        );
+
+        UpdateAthleteCommand command = new UpdateAthleteCommand(
+                "Andres",
+                "Alfaro",
+                "new@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE
+        );
+
+        when(repository.findById(athleteId))
+                .thenReturn(Optional.of(existingAthlete));
+
+        when(repository.save(any(Athlete.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Athlete result = service.update(athleteId, command);
+
+        assertEquals(athleteId, result.getId());
+        assertEquals("new@example.com", result.getEmail());
+
+        verify(repository, times(1)).findById(athleteId);
+        verify(repository, times(1)).save(existingAthlete);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonExistingAthlete() {
+
+        UUID athleteId = UUID.randomUUID();
+
+        UpdateAthleteCommand command = new UpdateAthleteCommand(
+                "Andres",
+                "Alfaro",
+                "new@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE
+        );
+
+        when(repository.findById(athleteId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                AthleteNotFoundException.class,
+                () -> service.update(athleteId, command)
+        );
+
+        verify(repository, times(1)).findById(athleteId);
+        verify(repository, never()).save(any(Athlete.class));
     }
 }

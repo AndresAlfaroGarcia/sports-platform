@@ -1,14 +1,17 @@
 package com.sportsplatform.athlete.infrastructure.adapter.in.rest;
 
+import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.in.CreateAthleteUseCase;
 import com.sportsplatform.athlete.application.port.in.GetAthleteByIdUseCase;
 import com.sportsplatform.athlete.application.port.in.GetAthletesUseCase;
+import com.sportsplatform.athlete.application.port.in.UpdateAthleteUseCase;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.CreateAthleteRequest;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.PagedAthleteResponse;
+import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.UpdateAthleteRequest;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper.AthleteRestMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,17 +26,20 @@ public class AthleteController {
     private final CreateAthleteUseCase createAthleteUseCase;
     private final GetAthleteByIdUseCase getAthleteByIdUseCase;
     private final GetAthletesUseCase getAthletesUseCase;
+    private final UpdateAthleteUseCase updateAthleteUseCase;
     private final AthleteRestMapper mapper;
 
     public AthleteController(
             CreateAthleteUseCase createAthleteUseCase,
             GetAthleteByIdUseCase getAthleteByIdUseCase,
             GetAthletesUseCase getAthletesUseCase,
+            UpdateAthleteUseCase updateAthleteUseCase,
             AthleteRestMapper mapper) {
 
         this.createAthleteUseCase = createAthleteUseCase;
         this.getAthleteByIdUseCase = getAthleteByIdUseCase;
         this.getAthletesUseCase = getAthletesUseCase;
+        this.updateAthleteUseCase = updateAthleteUseCase;
         this.mapper = mapper;
     }
 
@@ -68,5 +74,19 @@ public class AthleteController {
                 getAthletesUseCase.getAll(query);
 
         return mapper.toPagedResponse(result);
+    }
+
+    @PutMapping("/{athleteId}")
+    public AthleteResponse update(
+            @PathVariable UUID athleteId,
+            @RequestBody UpdateAthleteRequest request) {
+
+        UpdateAthleteCommand command =
+                mapper.toCommand(request);
+
+        Athlete athlete =
+                updateAthleteUseCase.update(athleteId, command);
+
+        return mapper.toResponse(athlete);
     }
 }

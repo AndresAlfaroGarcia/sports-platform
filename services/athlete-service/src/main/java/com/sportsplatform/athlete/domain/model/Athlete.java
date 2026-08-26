@@ -82,7 +82,7 @@ public class Athlete {
         this.birthDate = birthDate;
         this.gender = gender;
     }
-    
+
     public void deactivate() {
         this.active = false;
     }
