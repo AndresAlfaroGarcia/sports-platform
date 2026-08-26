@@ -1,6 +1,8 @@
 package com.sportsplatform.athlete.application.service;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
+import com.sportsplatform.athlete.application.model.PageQuery;
+import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -103,5 +106,41 @@ class AthleteApplicationServiceTest {
 
         verify(repository, times(1))
                 .findById(athleteId);
+    }
+
+    @Test
+    void shouldGetAthletesPaginated() {
+
+        PageQuery query = new PageQuery(0, 20);
+
+        Athlete athlete = Athlete.create(
+                "Andres",
+                "Alfaro",
+                "andres@example.com",
+                LocalDate.of(1985, 5, 20),
+                Gender.MALE
+        );
+
+        PageResult<Athlete> expected =
+                new PageResult<>(
+                        List.of(athlete),
+                        0,
+                        20,
+                        1,
+                        1
+                );
+
+        when(repository.findAll(query))
+                .thenReturn(expected);
+
+        PageResult<Athlete> result =
+                service.getAll(query);
+
+        assertEquals(1, result.content().size());
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.totalPages());
+
+        verify(repository, times(1))
+                .findAll(query);
     }
 }

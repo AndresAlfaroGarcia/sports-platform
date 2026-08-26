@@ -1,8 +1,13 @@
 package com.sportsplatform.athlete.infrastructure.adapter.out.persistence;
 
+import com.sportsplatform.athlete.application.model.PageQuery;
+import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.model.Athlete;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,5 +39,29 @@ public class AthletePersistenceAdapter implements AthleteRepositoryPort {
 
         return repository.findById(athleteId)
                 .map(mapper::toDomain); //Reference to method
+    }
+
+    @Override
+    public PageResult<Athlete> findAll(PageQuery pageQuery) {
+
+        PageRequest pageable = PageRequest.of(
+                pageQuery.page(),
+                pageQuery.size()
+        );
+
+        Page<AthleteEntity> page = repository.findAll(pageable);
+
+        List<Athlete> athletes = page.getContent()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+
+        return new PageResult<>(
+                athletes,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
     }
 }

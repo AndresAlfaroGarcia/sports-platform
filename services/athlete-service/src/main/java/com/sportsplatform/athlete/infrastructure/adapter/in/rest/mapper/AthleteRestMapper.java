@@ -1,9 +1,13 @@
 package com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
+import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.domain.model.Athlete;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.AthleteResponse;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.CreateAthleteRequest;
+import com.sportsplatform.athlete.infrastructure.adapter.in.rest.dto.PagedAthleteResponse;
+
+import java.util.List;
 
 public class AthleteRestMapper {
 
@@ -26,6 +30,22 @@ public class AthleteRestMapper {
                 request.email(),
                 request.birthDate(),
                 request.gender()
+        );
+    }
+
+    public PagedAthleteResponse toPagedResponse(PageResult<Athlete> pageResult) {
+
+        List<AthleteResponse> content = pageResult.content()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+
+        return new PagedAthleteResponse(
+                content,
+                pageResult.page(),
+                pageResult.size(),
+                pageResult.totalElements(),
+                pageResult.totalPages()
         );
     }
 }
