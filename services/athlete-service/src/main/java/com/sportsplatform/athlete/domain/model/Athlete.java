@@ -69,6 +69,20 @@ public class Athlete {
         );
     }
 
+    public void update(
+            String firstName,
+            String lastName,
+            String email,
+            LocalDate birthDate,
+            Gender gender) {
+
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthDate = birthDate;
+        this.gender = gender;
+    }
+    
     public void deactivate() {
         this.active = false;
     }
