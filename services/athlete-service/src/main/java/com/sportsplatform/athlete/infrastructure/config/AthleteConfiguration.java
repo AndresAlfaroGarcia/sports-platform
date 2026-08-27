@@ -1,5 +1,6 @@
 package com.sportsplatform.athlete.infrastructure.config;
 
+import com.sportsplatform.athlete.application.port.out.AthleteEventPublisherPort;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.application.service.AthleteApplicationService;
 import com.sportsplatform.athlete.infrastructure.adapter.in.rest.mapper.AthleteRestMapper;
@@ -32,8 +33,12 @@ public class AthleteConfiguration {
 
     @Bean
     public AthleteApplicationService athleteApplicationService(
-            AthleteRepositoryPort repositoryPort) {
+            AthleteRepositoryPort repositoryPort,
+            AthleteEventPublisherPort eventPublisherPort) {
 
-        return new AthleteApplicationService(repositoryPort);
+        return new AthleteApplicationService(
+                repositoryPort,
+                eventPublisherPort
+        );
     }
 }

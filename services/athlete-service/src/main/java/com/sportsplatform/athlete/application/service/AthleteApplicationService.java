@@ -2,9 +2,11 @@ package com.sportsplatform.athlete.application.service;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
 import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
+import com.sportsplatform.athlete.application.event.AthleteCreatedEvent;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
 import com.sportsplatform.athlete.application.port.in.*;
+import com.sportsplatform.athlete.application.port.out.AthleteEventPublisherPort;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
@@ -18,10 +20,14 @@ public class AthleteApplicationService implements CreateAthleteUseCase,
                                                     DeactivateAthleteUseCase {
 
     private final AthleteRepositoryPort athleteRepositoryPort;
+    private final AthleteEventPublisherPort athleteEventPublisherPort;
 
     public AthleteApplicationService(
-            AthleteRepositoryPort athleteRepositoryPort) {
+            AthleteRepositoryPort athleteRepositoryPort,
+            AthleteEventPublisherPort athleteEventPublisherPort) {
+
         this.athleteRepositoryPort = athleteRepositoryPort;
+        this.athleteEventPublisherPort = athleteEventPublisherPort;
     }
 
     @Override
@@ -34,7 +40,20 @@ public class AthleteApplicationService implements CreateAthleteUseCase,
                 command.gender()
         );
 
-        return athleteRepositoryPort.save(athlete);
+        Athlete savedAthlete =
+                athleteRepositoryPort.save(athlete);
+
+        AthleteCreatedEvent event =
+                new AthleteCreatedEvent(
+                        savedAthlete.getId(),
+                        savedAthlete.getFirstName(),
+                        savedAthlete.getLastName(),
+                        savedAthlete.getEmail()
+                );
+
+        athleteEventPublisherPort.publishAthleteCreated(event);
+
+        return savedAthlete;
     }
 
     @Override

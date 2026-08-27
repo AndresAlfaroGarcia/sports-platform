@@ -2,8 +2,10 @@ package com.sportsplatform.athlete.application.service;
 
 import com.sportsplatform.athlete.application.command.CreateAthleteCommand;
 import com.sportsplatform.athlete.application.command.UpdateAthleteCommand;
+import com.sportsplatform.athlete.application.event.AthleteCreatedEvent;
 import com.sportsplatform.athlete.application.model.PageQuery;
 import com.sportsplatform.athlete.application.model.PageResult;
+import com.sportsplatform.athlete.application.port.out.AthleteEventPublisherPort;
 import com.sportsplatform.athlete.application.port.out.AthleteRepositoryPort;
 import com.sportsplatform.athlete.domain.exception.AthleteNotFoundException;
 import com.sportsplatform.athlete.domain.model.Athlete;
@@ -23,12 +25,13 @@ class AthleteApplicationServiceTest {
 
     private AthleteRepositoryPort repository;
     private AthleteApplicationService service;
+    private AthleteEventPublisherPort eventPublisher;
 
     @BeforeEach
     void setUp() {
         repository = mock(AthleteRepositoryPort.class);
-
-        service = new AthleteApplicationService(repository);
+        eventPublisher = mock(AthleteEventPublisherPort.class);
+        service = new AthleteApplicationService(repository, eventPublisher);
     }
 
     @Test
@@ -63,6 +66,9 @@ class AthleteApplicationServiceTest {
 
         verify(repository, times(1))
                 .save(any(Athlete.class));
+
+        verify(eventPublisher, times(1))
+                .publishAthleteCreated(any(AthleteCreatedEvent.class));
     }
 
     @Test
